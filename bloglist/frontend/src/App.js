@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import Blog from './components/Blog';
 import Notification from './components/Notification';
 import Togglable from './components/Togglable';
@@ -8,14 +9,16 @@ import blogService from './services/blogs';
 import loginService from './services/login';
 import storage from './utils/storage';
 
+import { setNotification } from './reducers/notificationReducer';
+
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [notification, setNotification] = useState(null);
 
   const blogFormRef = React.createRef();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -26,14 +29,8 @@ const App = () => {
     setUser(user);
   }, []);
 
-  const notifyWith = (message, type = 'success') => {
-    setNotification({
-      message,
-      type,
-    });
-    setTimeout(() => {
-      setNotification(null);
-    }, 5000);
+  const notifyWith = (message, type) => {
+    dispatch(setNotification(message, type, 5));
   };
 
   const handleLogin = async (event) => {
@@ -47,7 +44,7 @@ const App = () => {
       setUsername('');
       setPassword('');
       setUser(user);
-      notifyWith(`${user.name} welcome back!`);
+      notifyWith(`${user.name} welcome back!`, 'success');
       storage.saveUser(user);
     } catch (exception) {
       notifyWith('wrong username/password', 'error');
@@ -59,7 +56,10 @@ const App = () => {
       const newBlog = await blogService.create(blog);
       blogFormRef.current.toggleVisibility();
       setBlogs(blogs.concat(newBlog));
-      notifyWith(`a new blog '${newBlog.title}' by ${newBlog.author} added!`);
+      notifyWith(
+        `a new blog '${newBlog.title}' by ${newBlog.author} added!`,
+        'success'
+      );
     } catch (exception) {
       console.log(exception);
     }
@@ -77,6 +77,10 @@ const App = () => {
       blogs.map((b) =>
         b.id === id ? { ...blogToLike, likes: blogToLike.likes + 1 } : b
       )
+    );
+    notifyWith(
+      `you liked '${blogToLike.title}' by ${blogToLike.author}`,
+      'success'
     );
   };
 
@@ -101,7 +105,7 @@ const App = () => {
       <div>
         <h2>login to application</h2>
 
-        <Notification notification={notification} />
+        <Notification notification={'PLACEHOLDER'} />
 
         <form onSubmit={handleLogin}>
           <div>
@@ -132,7 +136,7 @@ const App = () => {
     <div>
       <h2>blogs</h2>
 
-      <Notification notification={notification} />
+      <Notification notification={'PLACHOLDER'} />
 
       <p>
         {user.name} logged in <button onClick={handleLogout}>logout</button>

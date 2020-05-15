@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
+
+import { setNotification } from '../reducers/notificationReducer';
 
 const Blog = ({ blog, handleLike, handleRemove, own }) => {
   const [visible, setVisible] = useState(false);
+  const dispatch = useDispatch();
 
   const blogStyle = {
     paddingTop: 10,
