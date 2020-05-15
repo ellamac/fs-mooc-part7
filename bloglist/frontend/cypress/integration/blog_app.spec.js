@@ -1,138 +1,123 @@
 describe('Blog app', function () {
   beforeEach(function () {
     cy.request('POST', 'http://localhost:3001/api/testing/reset');
-    const user1 = {
-      name: 'Peltsi Peltsinen',
-      username: 'peltsi',
+    cy.request('POST', 'http://localhost:3001/api/users', {
+      username: 'mluukkai',
+      name: 'Matti Luukkainen',
       password: 'salainen',
-    };
-    const user2 = {
-      name: 'Meitsi Meikäläinen',
-      username: 'meitsi',
+    });
+    cy.request('POST', 'http://localhost:3001/api/users', {
+      username: 'hellas',
+      name: 'Arto Hellas',
       password: 'salainen',
-    };
-    cy.request('POST', 'http://localhost:3001/api/users/', user1);
-    cy.request('POST', 'http://localhost:3001/api/users/', user2);
+    });
     cy.visit('http://localhost:3000');
   });
 
-  it('Login form is shown', function () {
-    cy.contains('Login');
+  it('Login from is shown', function () {
+    cy.contains('login to application');
   });
 
   describe('Login', function () {
     it('succeeds with correct credentials', function () {
-      cy.get('#username').type('peltsi');
+      cy.get('#username').type('mluukkai');
       cy.get('#password').type('salainen');
-      cy.get('#loginForm-button').click();
-      cy.contains('Peltsi Peltsinen logged in');
-      cy.get('#log-out-button').click();
+      cy.get('#login').click();
+
+      cy.contains('Matti Luukkainen logged in');
     });
 
     it('fails with wrong credentials', function () {
-      cy.get('#loginForm-button').click();
-      cy.get('#username').type('peltsi');
-      cy.get('#password').type('vääräsalasana');
-      cy.get('#loginForm-button').click();
-      cy.get('#notification')
-        .should('contain', 'wrong username or password')
-        .and('have.css', 'color', 'rgb(255,0,0)');
-      cy.contains('');
+      cy.get('#username').type('mluukkai');
+      cy.get('#password').type('wrong');
+      cy.get('#login').click();
+
+      cy.contains('wrong username/password').should(
+        'have.css',
+        'color',
+        'rgb(255, 0, 0)'
+      );
     });
   });
 
-  describe.only('When logged in', function () {
+  describe('When logged in', function () {
     beforeEach(function () {
-      cy.request('POST', 'http://localhost:3001/api/login', {
-        username: 'peltsi',
-        password: 'salainen',
-      }).then((response) => {
-        localStorage.setItem(
-          'loggedBlogappUser',
-          JSON.stringify(response.body)
-        );
-        cy.visit('http://localhost:3000');
-      });
+      cy.login({ username: 'mluukkai', password: 'salainen' });
     });
 
     it('A blog can be created', function () {
-      cy.get('#blogFormToggle-show').click();
-      cy.get('input#title').type('Blogin nimi');
-      cy.get('input#author').type('Blogin kirjoittaja');
-      cy.get('input#url').type('https://www.netflix.com/browse');
-      cy.get('#blogForm-button').click();
-      cy.contains('');
-      cy.contains('Blogin nimi');
-      cy.contains('Blogin kirjoittaja');
+      cy.contains('create new blog').click();
+      cy.get('#author').type('Gleb Bahmutov');
+      cy.get('#title').type('Readable Cypress.io tests');
+      cy.get('#url').type('https://glebbahmutov.com/blog/readable-tests/');
+      cy.get('#create').click();
+
+      cy.contains('Readable Cypress.io tests');
+      cy.contains('Gleb Bahmutov');
+    });
+  });
+
+  describe('When several blogs creaded by many people exist', function () {
+    beforeEach(function () {
+      cy.login({ username: 'mluukkai', password: 'salainen' });
+      cy.createBlog({
+        author: 'John Doe',
+        title: 'test1',
+        url: 'http://example.com./test1',
+      });
+      cy.createBlog({
+        author: 'John Doe',
+        title: 'test2',
+        url: 'http://example.com./test2',
+      });
+      cy.contains('logout').click();
+      cy.login({ username: 'hellas', password: 'salainen' });
+      cy.createBlog({
+        author: 'Jane Doe',
+        title: 'test3',
+        url: 'http://example.com./test3',
+      });
+
+      cy.contains('test1').parent().parent().as('blog1');
+      cy.contains('test2').parent().parent().as('blog2');
+      cy.contains('test3').parent().parent().as('blog3');
     });
 
-    describe.only('When blogs exist', function () {
-      beforeEach(function () {
-        cy.get('#blogFormToggle-show').click();
-        cy.get('input#title').type('Testaukseen');
-        cy.get('input#author').type('Testaaja');
-        cy.get('input#url').type('https://www.netflix.com/browse');
-        cy.get('#blogForm-button').click();
+    it('Blogs can be liked', function () {
+      cy.get('@blog2').contains('view').click();
+      cy.get('@blog2').contains('like').click();
+      cy.get('@blog2').contains('likes 1');
+    });
+
+    it('they are ordered by number of likes', function () {
+      cy.get('@blog1').contains('view').click();
+      cy.get('@blog2').contains('view').click();
+      cy.get('@blog3').contains('view').click();
+      cy.get('@blog1').contains('like').as('like1');
+      cy.get('@blog2').contains('like').as('like2');
+      cy.get('@blog3').contains('like').as('like3');
+
+      cy.get('@like2').click();
+      cy.get('@like1').click();
+      cy.get('@like1').click();
+      cy.get('@like3').click();
+      cy.get('@like3').click();
+      cy.get('@like3').click();
+
+      cy.get('.blog').then((blogs) => {
+        cy.wrap(blogs[0]).contains('likes 3');
+        cy.wrap(blogs[1]).contains('likes 2');
+        cy.wrap(blogs[2]).contains('likes 1');
       });
-      it('A blog can be liked', function () {
-        cy.get('#Testaukseen-toggle-show').click();
-        cy.get('#Testaukseen-like').click();
-        cy.get('#Testaukseen-blog').contains('1');
-        cy.get('#Testaukseen-like').click();
-        cy.get('#Testaukseen-blog')
-          .should('contain', '2')
-          .and('not.contain', '1');
-      });
-      it('creator can delete blog', function () {
-        cy.get('#Testaukseen-toggle-show').click();
-        cy.get('#Testaukseen-delete').click();
-      });
+    });
 
-      it('non-creator cannot delete blog', function () {
-        cy.get('#log-out-button').click();
+    it('The creator can delete a blog', function () {
+      cy.get('@blog3').contains('view').click();
+      cy.get('@blog3').contains('remove').click();
+      cy.get('home').should('not.contain', 'test3');
 
-        cy.get('#username').type('meitsi');
-        cy.get('#password').type('salainen');
-        cy.get('#loginForm-button').click();
-        cy.contains('Meitsi Meikäläinen logged in');
-
-        cy.get('#Testaukseen-toggle-show').click();
-        cy.get('#Testaukseen-blog').should(
-          'not.contain',
-          '#Testaukseen-delete'
-        );
-      });
-
-      it('blogs are ordered by likes', function () {
-        cy.get('#blogFormToggle-show').click();
-        cy.get('input#title').type('1');
-        cy.get('input#author').type('1');
-        cy.get('input#url').type('https://www.netflix.com/browse');
-        cy.get('#blogForm-button').click();
-        cy.get('#Testaukseen1-toggle-show').click();
-        cy.get('#Testaukseen1-like').click();
-
-        cy.get('#Testaukseen1-like').click();
-
-        cy.get('#log-out-button').click();
-        cy.get('#username').type('meitsi');
-        cy.get('#password').type('salainen');
-        cy.get('#loginForm-button').click();
-        cy.contains('Meitsi Meikäläinen logged in');
-
-        cy.get('#Testaukseen-toggle-show').click();
-        cy.get('#Testaukseen1-toggle-show').click();
-
-        cy.get('.likes:first').then(($likes1) => {
-          const likes1 = parseInt($likes1.text());
-
-          cy.get('.likes:last').then(($likes2) => {
-            const likes2 = parseInt($likes2.text());
-
-            expect(likes1).to.be.greaterThan(likes2);
-          });
-        });
-      });
+      cy.get('@blog2').contains('view').click();
+      cy.get('@blog2').should('not.contain', 'remove');
     });
   });
 });

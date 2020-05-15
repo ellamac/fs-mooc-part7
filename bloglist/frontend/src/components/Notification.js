@@ -1,25 +1,19 @@
 import React from 'react';
 
-const Notification = ({ notif }) => {
-  const errorStyle = {
-    color: notif.color,
-    backgroundColor: 'lightgrey',
-    border: 'solid 3px',
-    borderColor: notif.color,
-    borderRadius: 5,
-    padding: 10,
-    margin: '10px 0',
-  };
-
-  if (notif.message === '') {
+const Notification = ({ notification }) => {
+  if (!notification) {
     return null;
   }
 
-  return (
-    <div style={errorStyle} id='notification'>
-      {notif.message}
-    </div>
-  );
+  const style = {
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    color: notification.type === 'success' ? 'green' : 'red',
+    background: 'lightgrey',
+  };
+
+  return <div style={style}>{notification.message}</div>;
 };
 
 export default Notification;

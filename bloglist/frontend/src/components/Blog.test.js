@@ -3,19 +3,71 @@ import '@testing-library/jest-dom/extend-expect';
 import { render, fireEvent } from '@testing-library/react';
 import Blog from './Blog';
 
-describe('<Blog />', () => {
-  let blog = {
-    title: 'Component testing is done with react-testing-library',
-    author: 'react-testing-library',
-    url: 'https://github.com/testing-library/react-testing-library',
-    user: { username: 'Tester', name: 'React Tester' },
-    likes: 0,
-  };
+const other = {
+  own: true,
+  handleRemove: () => {},
+  handleLike: () => {},
+};
 
-  test('renders content', () => {
-    const component = render(<Blog blog={blog} />);
-    expect(component.container).toHaveTextContent(
-      'Component testing is done with react-testing-library'
-    );
+describe('Blog', () => {
+  test('renders only author and title by default', () => {
+    const blog = {
+      author: 'Ron Jeffries',
+      title: 'You’re NOT gonna need it!',
+      url: 'https://ronjeffries.com/xprog/articles/practices/pracnotneed/',
+      likes: 3,
+    };
+
+    const component = render(<Blog blog={blog} {...other} />);
+
+    expect(component.container).toHaveTextContent(blog.author);
+    expect(component.container).toHaveTextContent(blog.title);
+    expect(component.container).not.toHaveTextContent(blog.url);
+  });
+
+  test('renders url and likes when expanded', () => {
+    const blog = {
+      author: 'Ron Jeffries',
+      title: 'You’re NOT gonna need it!',
+      url: 'https://ronjeffries.com/xprog/articles/practices/pracnotneed/',
+      likes: 3,
+      user: {
+        name: 'Arto Hellas',
+      },
+    };
+
+    const component = render(<Blog blog={blog} {...other} />);
+
+    const viewButton = component.getByText('view');
+    fireEvent.click(viewButton);
+
+    expect(component.container).toHaveTextContent(blog.url);
+    expect(component.container).toHaveTextContent(`likes ${blog.likes}`);
+  });
+
+  test('when liked twice, the event handler gets called twice', () => {
+    const blog = {
+      author: 'Ron Jeffries',
+      title: 'You’re NOT gonna need it!',
+      url: 'https://ronjeffries.com/xprog/articles/practices/pracnotneed/',
+      likes: 3,
+      id: 1,
+      user: {
+        name: 'Arto Hellas',
+      },
+    };
+
+    other.handleLike = jest.fn();
+
+    const component = render(<Blog blog={blog} {...other} />);
+
+    const viewButton = component.getByText('view');
+    fireEvent.click(viewButton);
+
+    const likeButton = component.getByText('like');
+    fireEvent.click(likeButton);
+    fireEvent.click(likeButton);
+
+    expect(other.handleLike.mock.calls.length).toBe(2);
   });
 });

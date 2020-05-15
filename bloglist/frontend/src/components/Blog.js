@@ -1,68 +1,49 @@
 import React, { useState } from 'react';
-import Togglable from './Togglable';
-import Button from './Button';
-import blogService from '../services/blogs';
-import '../App.css';
+import PropTypes from 'prop-types';
 
-const Blog = ({ blog, loggedUser }) => {
-  const [thisBlog, setThisBlog] = useState(blog);
+const Blog = ({ blog, handleLike, handleRemove, own }) => {
+  const [visible, setVisible] = useState(false);
 
-  const handleLike = () => {
-    blogService
-      .update({
-        ...thisBlog,
-        likes: thisBlog.likes + 1,
-        user: thisBlog.user.id,
-      })
-      .then((updatedBlog) =>
-        setThisBlog({ ...thisBlog, likes: updatedBlog.likes })
-      );
+  const blogStyle = {
+    paddingTop: 10,
+    paddingLeft: 2,
+    border: 'solid',
+    borderWidth: 1,
+    marginBottom: 5,
   };
 
-  const handleRemove = () => {
-    if (
-      window.confirm(`Remove blog ${thisBlog.title} by ${thisBlog.author}?`)
-    ) {
-      try {
-        blogService.remove(thisBlog.id).then(() => setThisBlog(null));
-      } catch (error) {
-        console.log('Removing did not work', error);
-      }
-    }
-  };
+  const label = visible ? 'hide' : 'view';
 
-  return thisBlog ? (
-    <div className='blog' id={`${thisBlog.title.replace(' ', '-')}-blog`}>
-      {thisBlog.title} {thisBlog.author}
-      <Togglable
-        buttonShowLabel='view'
-        buttonHideLabel='hide'
-        id={`${thisBlog.title.replace(' ', '-')}-toggle`}
-      >
-        <div>{thisBlog.url}</div>
-        <div className='likes'>
-          {thisBlog.likes}
-          <Button
-            id={`${thisBlog.title.replace(' ', '-')}-like`}
-            onClick={handleLike}
-            buttonText='like'
-          />
+  return (
+    <div style={blogStyle} className='blog'>
+      <div>
+        <i>{blog.title}</i> by {blog.author}{' '}
+        <button onClick={() => setVisible(!visible)}>{label}</button>
+      </div>
+      {visible && (
+        <div>
+          <div>{blog.url}</div>
+          <div>
+            likes {blog.likes}
+            <button onClick={() => handleLike(blog.id)}>like</button>
+          </div>
+          <div>{blog.user.name}</div>
+          {own && <button onClick={() => handleRemove(blog.id)}>remove</button>}
         </div>
-        <div>{thisBlog.user.name}</div>
-        {loggedUser === thisBlog.user.username ? (
-          <Button
-            id={`${thisBlog.title.replace(' ', '-')}-delete`}
-            onClick={handleRemove}
-            buttonText='remove'
-          />
-        ) : (
-          <></>
-        )}
-      </Togglable>
+      )}
     </div>
-  ) : (
-    <></>
   );
+};
+
+Blog.propTypes = {
+  blog: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    author: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
+  }).isRequired,
+  handleLike: PropTypes.func.isRequired,
+  handleRemove: PropTypes.func.isRequired,
+  own: PropTypes.bool.isRequired,
 };
 
 export default Blog;
