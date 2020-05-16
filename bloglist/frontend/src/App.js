@@ -1,32 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import BlogList from './components/BlogList';
 import Notification from './components/Notification';
 import Togglable from './components/Togglable';
 import NewBlog from './components/NewBlog';
 
-import loginService from './services/login';
-import storage from './utils/storage';
-
 import { setNotification } from './reducers/notificationReducer';
 import { initializeBlogs } from './reducers/blogReducer';
+import { initializeUser, loginUser, logoutUser } from './reducers/loginReducer';
 
 const App = () => {
-  const [user, setUser] = useState(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const user = useSelector((state) => {
+    return state.user;
+  });
 
   const blogFormRef = React.createRef();
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(initializeUser());
     dispatch(initializeBlogs());
   }, [dispatch]);
-
-  useEffect(() => {
-    const user = storage.loadUser();
-    setUser(user);
-  }, []);
 
   const notifyWith = (message, type) => {
     dispatch(setNotification(message, type, 5));
@@ -35,24 +31,17 @@ const App = () => {
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const user = await loginService.login({
-        username,
-        password,
-      });
-
+      dispatch(loginUser({ username, password }));
       setUsername('');
       setPassword('');
-      setUser(user);
-      notifyWith(`${user.name} welcome back!`, 'success');
-      storage.saveUser(user);
+      notifyWith(`Welcome back!`, 'success');
     } catch (exception) {
       notifyWith('wrong username/password', 'error');
     }
   };
 
   const handleLogout = () => {
-    setUser(null);
-    storage.logoutUser();
+    dispatch(logoutUser());
   };
 
   if (!user) {
@@ -98,7 +87,7 @@ const App = () => {
       <Togglable buttonLabel='create new blog' ref={blogFormRef}>
         <NewBlog />
       </Togglable>
-      <BlogList user={user.username} />
+      <BlogList />
     </div>
   );
 };

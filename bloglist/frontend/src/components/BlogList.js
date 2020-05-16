@@ -5,9 +5,12 @@ import Blog from './Blog';
 import { likeBlog, removeBlog } from '../reducers/blogReducer';
 import { setNotification } from '../reducers/notificationReducer';
 
-const BlogList = ({ user }) => {
+const BlogList = (props) => {
   const blogs = useSelector((state) => {
     return state.blogs;
+  });
+  const user = useSelector((state) => {
+    return state.user;
   });
 
   const dispatch = useDispatch();
@@ -36,7 +39,7 @@ const BlogList = ({ user }) => {
             blog={blog}
             handleLike={like}
             handleRemove={remove}
-            own={user === blog.user.username}
+            own={user.username === blog.user.username}
           />
         </div>
       ))}
