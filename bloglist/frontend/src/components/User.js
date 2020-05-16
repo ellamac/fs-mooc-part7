@@ -1,6 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
+import { StyledLink, Title, ListItem } from '../styledComponents';
+
 const User = (props) => {
   const id = useParams().id;
   const user = useSelector((state) => {
@@ -12,13 +14,13 @@ const User = (props) => {
 
   return (
     <div>
-      <h2>{user.name}</h2>
-      <h3>added blogs</h3>
+      <Title sub={2}>{user.name}</Title>
+      <Title sub={3}>added blogs</Title>
       <ul>
         {user.blogs.map((b) => (
-          <li key={b.id}>
-            <Link to={`/blogs/${b.id}`}>{b.title}</Link>
-          </li>
+          <ListItem listType={"'\\27AD'"} key={b.id}>
+            <StyledLink to={`/blogs/${b.id}`}>{b.title}</StyledLink>
+          </ListItem>
         ))}
       </ul>
     </div>

@@ -9,6 +9,7 @@ import UserList from './components/UserList';
 import User from './components/User';
 import Blog from './components/Blog';
 import TopNavigation from './components/TopNavigation';
+import { Button, Title, Input, Text, Form } from './styledComponents';
 
 import { setNotification } from './reducers/notificationReducer';
 import { initializeBlogs } from './reducers/blogReducer';
@@ -54,29 +55,29 @@ const App = () => {
   if (!user) {
     return (
       <div>
-        <h2>login to application</h2>
+        <Title sub={2}>login to application</Title>
 
         <Notification notification={'PLACEHOLDER'} />
 
-        <form onSubmit={handleLogin}>
-          <div>
+        <Form onSubmit={handleLogin}>
+          <Text>
             username
-            <input
+            <Input
               id='username'
               value={username}
               onChange={({ target }) => setUsername(target.value)}
             />
-          </div>
-          <div>
+          </Text>
+          <Text>
             password
-            <input
+            <Input
               id='password'
               value={password}
               onChange={({ target }) => setPassword(target.value)}
             />
-          </div>
-          <button id='login'>login</button>
-        </form>
+          </Text>
+          <Button id='login'>login</Button>
+        </Form>
       </div>
     );
   }
@@ -84,7 +85,7 @@ const App = () => {
   return (
     <div>
       <TopNavigation />
-      <h2>blog app</h2>
+      <Title>blog app</Title>
 
       <Notification notification={'PLACHOLDER'} />
 

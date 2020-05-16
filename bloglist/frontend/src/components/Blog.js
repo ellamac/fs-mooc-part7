@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import { useParams, Redirect } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import {
+  Title,
+  Italic,
+  StyledA,
+  Text,
+  Button,
+  ListItem,
+  Input,
+} from '../styledComponents';
 
 import { likeBlog, removeBlog, commentBlog } from '../reducers/blogReducer';
 import { setNotification } from '../reducers/notificationReducer';
@@ -74,36 +83,36 @@ const Blog = ({ own }) => {
   const style = { fontStyle: 'italic' };
   return (
     <div>
-      <h2>
-        <span style={style}>
+      <Title sub={2}>
+        <Italic>
           {blog.title}
           {` `}
-        </span>
+        </Italic>
         <span>{blog.author}</span>
-      </h2>
+      </Title>
       <div>
-        <a href={blog.url}>{blog.url}</a>
+        <StyledA href={blog.url}>{blog.url}</StyledA>
       </div>
-      <div>
+      <Text>
         {blog.likes} likes
-        <button onClick={() => handleLike()}>Like</button>
-      </div>
-      <div>added by {blog.user.name}</div>
+        <Button onClick={() => handleLike()}>Like</Button>
+      </Text>
+      <Text>added by {blog.user.name}</Text>
       {user.username === blog.user.username ? (
-        <button onClick={() => handleRemove()}>Remove blog</button>
+        <Button onClick={() => handleRemove()}>Remove blog</Button>
       ) : null}
-      <h3>comments</h3>
+      <Title sub={3}>comments</Title>
       <div>
         {' '}
-        <input
+        <Input
           id='comment'
           value={comment}
           onChange={({ target }) => setComment(target.value)}
         />
-        <button onClick={() => handleComment()}>add comment</button>
+        <Button onClick={() => handleComment()}>add comment</Button>
       </div>
       {blog.comments ? (
-        blog.comments.map((c, i) => <li key={i}>{c}</li>)
+        blog.comments.map((c, i) => <ListItem key={i}>{c}</ListItem>)
       ) : (
         <></>
       )}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { Button, TopNavBar, Text, StyledLink } from '../styledComponents';
 
 import { logoutUser } from '../reducers/loginReducer';
 
@@ -24,18 +25,18 @@ const TopNavigation = (props) => {
     margin: '0 2px',
   };
   return (
-    <div style={style}>
-      <Link style={linkStyle} to='/blogs'>
+    <TopNavBar>
+      <StyledLink white to='/blogs'>
         blogs
-      </Link>
-      <Link style={linkStyle} to='/users'>
+      </StyledLink>
+      <StyledLink white to='/users'>
         users
-      </Link>
-      <span style={linkStyle}>{user.name} is logged in</span>
-      <button style={linkStyle} onClick={handleLogout}>
+      </StyledLink>
+      <Text white>{user.name} is logged in</Text>
+      <Button bg={'white'} small onClick={handleLogout}>
         log out
-      </button>
-    </div>
+      </Button>
+    </TopNavBar>
   );
 };
 
