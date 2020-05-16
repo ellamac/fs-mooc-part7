@@ -8,11 +8,12 @@ import NewBlog from './components/NewBlog';
 import UserList from './components/UserList';
 import User from './components/User';
 import Blog from './components/Blog';
+import TopNavigation from './components/TopNavigation';
 
 import { setNotification } from './reducers/notificationReducer';
 import { initializeBlogs } from './reducers/blogReducer';
 import { initializeUsers } from './reducers/userReducer';
-import { initializeUser, loginUser, logoutUser } from './reducers/loginReducer';
+import { initializeUser, loginUser } from './reducers/loginReducer';
 
 const App = () => {
   const [username, setUsername] = useState('');
@@ -46,9 +47,9 @@ const App = () => {
     }
   };
 
-  const handleLogout = () => {
+  /*   const handleLogout = () => {
     dispatch(logoutUser());
-  };
+  }; */
 
   if (!user) {
     return (
@@ -82,13 +83,10 @@ const App = () => {
 
   return (
     <div>
-      <h2>blogs</h2>
+      <TopNavigation />
+      <h2>blog app</h2>
 
       <Notification notification={'PLACHOLDER'} />
-
-      <p>
-        {user.name} logged in <button onClick={handleLogout}>logout</button>
-      </p>
 
       <Switch>
         <Route path='/users/:id'>
