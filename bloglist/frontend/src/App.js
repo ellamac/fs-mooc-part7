@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { Switch, Route } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import BlogList from './components/BlogList';
 import Notification from './components/Notification';
 import Togglable from './components/Togglable';
 import NewBlog from './components/NewBlog';
+import UserList from './components/UserList';
 
 import { setNotification } from './reducers/notificationReducer';
 import { initializeBlogs } from './reducers/blogReducer';
+import { initializeUsers } from './reducers/userReducer';
 import { initializeUser, loginUser, logoutUser } from './reducers/loginReducer';
 
 const App = () => {
@@ -22,6 +25,7 @@ const App = () => {
   useEffect(() => {
     dispatch(initializeUser());
     dispatch(initializeBlogs());
+    dispatch(initializeUsers());
   }, [dispatch]);
 
   const notifyWith = (message, type) => {
@@ -84,10 +88,17 @@ const App = () => {
         {user.name} logged in <button onClick={handleLogout}>logout</button>
       </p>
 
-      <Togglable buttonLabel='create new blog' ref={blogFormRef}>
-        <NewBlog />
-      </Togglable>
-      <BlogList />
+      <Switch>
+        <Route path='/users'>
+          <UserList />
+        </Route>
+        <Route path='/'>
+          <Togglable buttonLabel='create new blog' ref={blogFormRef}>
+            <NewBlog />
+          </Togglable>
+          <BlogList />
+        </Route>
+      </Switch>
     </div>
   );
 };
