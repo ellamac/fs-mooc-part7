@@ -7,7 +7,7 @@ const reducer = (state = [], action) => {
     case 'INIT_BLOGS':
       return action.data.sort(byLikes);
     case 'LIKE':
-      const liked = action.data;
+      const liked = action.likedBlog;
       return state.map((b) => (b.id === liked.id ? liked : b)).sort(byLikes);
     case 'CREATE':
       return [...state, action.data];
@@ -40,11 +40,12 @@ export const initializeBlogs = () => {
 
 export const likeBlog = (blog) => {
   return async (dispatch) => {
-    const toLike = { ...blog, likes: blog.likes + 1, user: blog.user };
+    const toLike = { ...blog, likes: blog.likes + 1, user: blog.user.id };
     const data = await blogService.update(toLike);
+    const likedBlog = { ...data, user: blog.user };
     dispatch({
       type: 'LIKE',
-      data,
+      likedBlog,
     });
   };
 };

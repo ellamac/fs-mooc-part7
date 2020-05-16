@@ -7,6 +7,7 @@ import Togglable from './components/Togglable';
 import NewBlog from './components/NewBlog';
 import UserList from './components/UserList';
 import User from './components/User';
+import Blog from './components/Blog';
 
 import { setNotification } from './reducers/notificationReducer';
 import { initializeBlogs } from './reducers/blogReducer';
@@ -95,6 +96,9 @@ const App = () => {
         </Route>
         <Route path='/users'>
           <UserList />
+        </Route>
+        <Route path='/blogs/:id'>
+          <Blog />
         </Route>
         <Route path='/'>
           <Togglable buttonLabel='create new blog' ref={blogFormRef}>
