@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Redirect } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { likeBlog, removeBlog } from '../reducers/blogReducer';
+import { likeBlog, removeBlog, commentBlog } from '../reducers/blogReducer';
 import { setNotification } from '../reducers/notificationReducer';
 
 const Blog = ({ own }) => {
+  const [comment, setComment] = useState('');
   const dispatch = useDispatch();
 
   const id = useParams().id;
@@ -29,6 +30,29 @@ const Blog = ({ own }) => {
       dispatch(
         setNotification(
           `something went wrong when liking blog ${blog.title}`,
+          'error',
+          5
+        )
+      );
+    }
+  };
+
+  const handleComment = () => {
+    try {
+      dispatch(commentBlog(blog, comment));
+      setComment('');
+      dispatch(
+        setNotification(
+          `you added comment '${comment}' to blog '${blog.title}'`,
+          'success',
+          5
+        )
+      );
+    } catch (e) {
+      console.log('error', e);
+      dispatch(
+        setNotification(
+          `something went wrong when commenting blog ${blog.title}`,
           'error',
           5
         )
@@ -69,7 +93,20 @@ const Blog = ({ own }) => {
         <button onClick={() => handleRemove()}>Remove blog</button>
       ) : null}
       <h3>comments</h3>
-      {blog.comments ? blog.comments.map((c) => <li key={c}>{c}</li>) : <></>}
+      <div>
+        {' '}
+        <input
+          id='comment'
+          value={comment}
+          onChange={({ target }) => setComment(target.value)}
+        />
+        <button onClick={() => handleComment()}>add comment</button>
+      </div>
+      {blog.comments ? (
+        blog.comments.map((c, i) => <li key={i}>{c}</li>)
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

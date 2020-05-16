@@ -6,6 +6,9 @@ const reducer = (state = [], action) => {
   switch (action.type) {
     case 'INIT_BLOGS':
       return action.data.sort(byLikes);
+    case 'COMMENT':
+      const commented = action.commentedBlog;
+      return state.map((b) => (b.id === commented.id ? commented : b));
     case 'LIKE':
       const liked = action.likedBlog;
       return state.map((b) => (b.id === liked.id ? liked : b)).sort(byLikes);
@@ -34,6 +37,17 @@ export const initializeBlogs = () => {
     dispatch({
       type: 'INIT_BLOGS',
       data,
+    });
+  };
+};
+
+export const commentBlog = (blog, comment) => {
+  return async (dispatch) => {
+    const data = await blogService.postComment(blog.id, { message: comment });
+    const commentedBlog = { ...data, user: blog.user };
+    dispatch({
+      type: 'COMMENT',
+      commentedBlog,
     });
   };
 };
