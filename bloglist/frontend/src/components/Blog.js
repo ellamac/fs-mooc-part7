@@ -1,49 +1,114 @@
 import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import { useParams, Redirect } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 
-const Blog = ({ blog, handleLike, handleRemove, own }) => {
-  const [visible, setVisible] = useState(false);
+import { likeBlog, removeBlog, commentBlog } from '../reducers/blogReducer';
+import { setNotification } from '../reducers/notificationReducer';
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5,
+const Blog = ({ own }) => {
+  const [comment, setComment] = useState('');
+  const dispatch = useDispatch();
+
+  const id = useParams().id;
+  const blog = useSelector((state) => {
+    return state.blogs.find((b) => b.id === id);
+  });
+  const user = useSelector((state) => {
+    return state.user;
+  });
+
+  if (!blog) {
+    return <Redirect to='/' />;
+  }
+
+  const handleLike = () => {
+    try {
+      dispatch(likeBlog(blog));
+      dispatch(setNotification(`you liked '${blog.title}'`, 'success', 5));
+    } catch (e) {
+      console.log('error', e);
+      dispatch(
+        setNotification(
+          `something went wrong when liking blog ${blog.title}`,
+          'error',
+          5
+        )
+      );
+    }
   };
 
-  const label = own === blog.user.username ? 'hide' : 'view';
+  const handleComment = () => {
+    try {
+      dispatch(commentBlog(blog, comment));
+      setComment('');
+      dispatch(
+        setNotification(
+          `you added comment '${comment}' to blog '${blog.title}'`,
+          'success',
+          5
+        )
+      );
+    } catch (e) {
+      console.log('error', e);
+      dispatch(
+        setNotification(
+          `something went wrong when commenting blog ${blog.title}`,
+          'error',
+          5
+        )
+      );
+    }
+  };
 
+  const handleRemove = () => {
+    try {
+      dispatch(removeBlog(blog));
+      dispatch(setNotification(`you removed '${blog.title}'`, 'success', 5));
+    } catch (e) {
+      dispatch(
+        setNotification(`removing '${blog.title}' didn't succeed`, 'error', 5)
+      );
+    }
+  };
+
+  const style = { fontStyle: 'italic' };
   return (
-    <div style={blogStyle} className='blog'>
+    <div>
+      <h2>
+        <span style={style}>
+          {blog.title}
+          {` `}
+        </span>
+        <span>{blog.author}</span>
+      </h2>
       <div>
-        <i>{blog.title}</i> by {blog.author}{' '}
-        <button onClick={() => setVisible(!visible)}>{label}</button>
+        <a href={blog.url}>{blog.url}</a>
       </div>
-      {visible && (
-        <div>
-          <div>{blog.url}</div>
-          <div>
-            likes {blog.likes}
-            <button onClick={() => handleLike(blog)}>like</button>
-          </div>
-          <div>{blog.user.name}</div>
-          {own && <button onClick={() => handleRemove(blog)}>remove</button>}
-        </div>
+      <div>
+        {blog.likes} likes
+        <button onClick={() => handleLike()}>Like</button>
+      </div>
+      <div>added by {blog.user.name}</div>
+      {user.username === blog.user.username ? (
+        <button onClick={() => handleRemove()}>Remove blog</button>
+      ) : null}
+      <h3>comments</h3>
+      <div>
+        {' '}
+        <input
+          id='comment'
+          value={comment}
+          onChange={({ target }) => setComment(target.value)}
+        />
+        <button onClick={() => handleComment()}>add comment</button>
+      </div>
+      {blog.comments ? (
+        blog.comments.map((c, i) => <li key={i}>{c}</li>)
+      ) : (
+        <></>
       )}
     </div>
   );
-};
-
-Blog.propTypes = {
-  blog: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    author: PropTypes.string.isRequired,
-    url: PropTypes.string.isRequired,
-  }).isRequired,
-  /* handleLike: PropTypes.func.isRequired,
-  handleRemove: PropTypes.func.isRequired, */
-  /*  own: PropTypes.bool.isRequired, */
 };
 
 export default Blog;

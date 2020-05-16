@@ -1,21 +1,18 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import Blog from './Blog';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 
-import { likeBlog, removeBlog } from '../reducers/blogReducer';
-import { setNotification } from '../reducers/notificationReducer';
+/* import { likeBlog, removeBlog } from '../reducers/blogReducer';
+import { setNotification } from '../reducers/notificationReducer'; */
 
 const BlogList = (props) => {
   const blogs = useSelector((state) => {
     return state.blogs;
   });
-  const user = useSelector((state) => {
-    return state.user;
-  });
 
-  const dispatch = useDispatch();
+  /*   const dispatch = useDispatch(); */
 
-  const like = (blog) => {
+  /* const like = (blog) => {
     dispatch(likeBlog(blog));
     dispatch(setNotification(`you voted '${blog.title}'`, 'success', 5));
   };
@@ -29,18 +26,21 @@ const BlogList = (props) => {
         setNotification(`removing '${blog.title}' didn't succeed`, 'error', 5)
       );
     }
+  }; */
+
+  const blogStyle = {
+    paddingTop: 10,
+    paddingLeft: 2,
+    border: 'solid',
+    borderWidth: 1,
+    marginBottom: 5,
   };
 
   return (
     <div>
       {blogs.map((blog) => (
-        <div key={blog.id}>
-          <Blog
-            blog={blog}
-            handleLike={like}
-            handleRemove={remove}
-            own={user.username === blog.user.username}
-          />
+        <div key={blog.id} style={blogStyle} className='blog'>
+          <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
         </div>
       ))}
     </div>
