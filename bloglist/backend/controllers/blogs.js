@@ -26,7 +26,7 @@ router.delete('/:id', async (request, response) => {
 
   await blog.remove();
   user.blogs = user.blogs.filter(
-    b => b.id.toString() !== request.params.id.toString()
+    (b) => b.id.toString() !== request.params.id.toString()
   );
   await user.save();
   response.status(204).end();
@@ -36,9 +36,23 @@ router.put('/:id', async (request, response) => {
   const blog = request.body;
 
   const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
-    new: true
+    new: true,
   });
   response.json(updatedBlog.toJSON());
+});
+
+router.post('/:id/comments', async (request, response) => {
+  const message = request.body.message;
+  const blog = await Blog.findById(request.params.id);
+  if (!message) {
+    return response.status(400).send({ error: 'message missing ' });
+  }
+  const comment = message;
+
+  blog.comments = blog.comments.concat(comment);
+  const savedBlog = await blog.save();
+
+  response.status(201).json(savedBlog);
 });
 
 router.post('/', async (request, response) => {
@@ -58,6 +72,10 @@ router.post('/', async (request, response) => {
 
   if (!blog.likes) {
     blog.likes = 0;
+  }
+
+  if (!blog.comments) {
+    blog.comments = [];
   }
 
   blog.user = user;

@@ -4,22 +4,29 @@ const blogSchema = mongoose.Schema({
   title: {
     type: String,
     minlength: [3, 'title has to be atleast 3 digits long'],
-    required: true
+    required: true,
   },
   author: {
     type: String,
     minlength: [3, 'author has to be atleast 3 digits long'],
-    required: true
+    required: true,
   },
   url: {
     type: String,
-    required: true
+    required: true,
   },
   likes: Number,
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }
+    ref: 'User',
+  },
+  comments: [
+    {
+      type: String,
+      minlength: [1, 'comment has to be atleast 1 digit'],
+      required: true,
+    },
+  ],
 });
 
 blogSchema.set('toJSON', {
@@ -27,7 +34,7 @@ blogSchema.set('toJSON', {
     returnedObject.id = returnedObject._id.toString();
     delete returnedObject._id;
     delete returnedObject.__v;
-  }
+  },
 });
 
 module.exports = mongoose.model('Blog', blogSchema);
