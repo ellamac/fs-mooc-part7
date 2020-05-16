@@ -6,6 +6,7 @@ import Notification from './components/Notification';
 import Togglable from './components/Togglable';
 import NewBlog from './components/NewBlog';
 import UserList from './components/UserList';
+import User from './components/User';
 
 import { setNotification } from './reducers/notificationReducer';
 import { initializeBlogs } from './reducers/blogReducer';
@@ -89,6 +90,9 @@ const App = () => {
       </p>
 
       <Switch>
+        <Route path='/users/:id'>
+          <User />
+        </Route>
         <Route path='/users'>
           <UserList />
         </Route>
