@@ -1,22 +1,30 @@
 import React, { useState } from 'react';
+import { createBlog } from '../reducers/blogReducer';
+import { setNotification } from '../reducers/notificationReducer';
+import { connect } from 'react-redux';
 
 const NewBlog = (props) => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [url, setUrl] = useState('');
 
-  const handleNewBlog = (event) => {
+  const handleNewBlog = async (event) => {
     event.preventDefault();
 
-    props.createBlog({
+    const blogToCreate = {
       title,
       author,
       url,
-    });
-
+    };
     setTitle('');
     setAuthor('');
     setUrl('');
+    props.createBlog(blogToCreate);
+    props.setNotification(
+      `new blog '${blogToCreate.title}' created`,
+      'success',
+      5
+    );
   };
 
   return (
@@ -52,4 +60,4 @@ const NewBlog = (props) => {
     </div>
   );
 };
-export default NewBlog;
+export default connect(null, { createBlog, setNotification })(NewBlog);
