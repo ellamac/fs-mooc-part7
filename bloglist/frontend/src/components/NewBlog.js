@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createBlog } from '../reducers/blogReducer';
 import { setNotification } from '../reducers/notificationReducer';
 import { connect } from 'react-redux';
+import { Button, Input, Text, Title } from '../styledComponents';
 
 const NewBlog = (props) => {
   const [title, setTitle] = useState('');
@@ -29,33 +30,39 @@ const NewBlog = (props) => {
 
   return (
     <div>
-      <h2>create new</h2>
+      <Title sub={3}>create new</Title>
       <form onSubmit={handleNewBlog}>
         <div>
-          author
-          <input
-            id='author'
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
-          />
+          <Text>
+            author
+            <Input
+              id='author'
+              value={author}
+              onChange={({ target }) => setAuthor(target.value)}
+            />
+          </Text>
         </div>
         <div>
-          title
-          <input
-            id='title'
-            value={title}
-            onChange={({ target }) => setTitle(target.value)}
-          />
+          <Text>
+            title
+            <Input
+              id='title'
+              value={title}
+              onChange={({ target }) => setTitle(target.value)}
+            />
+          </Text>
         </div>
         <div>
-          url
-          <input
-            id='url'
-            value={url}
-            onChange={({ target }) => setUrl(target.value)}
-          />
+          <Text>
+            url
+            <Input
+              id='url'
+              value={url}
+              onChange={({ target }) => setUrl(target.value)}
+            />
+          </Text>
         </div>
-        <button id='create'>create</button>
+        <Button id='create'>create</Button>
       </form>
     </div>
   );
